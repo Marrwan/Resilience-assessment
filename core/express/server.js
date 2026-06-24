@@ -247,6 +247,7 @@ function Server(serverConfig = {}) {
           ? error.message
           : 'Some error occured.';
         responseComponents.body.errors = error.details || undefined;
+        responseComponents.body.code = error.errorCode || undefined;
         responseComponents.body.data = error.context;
 
         expressResponse.status(responseComponents.statusCode).json(responseComponents.body); // Todo: Add a callback config that can be used to handle this in a custom way.
@@ -274,14 +275,14 @@ function Server(serverConfig = {}) {
   }
 
   function startServer() {
-    app.use((_, res, __) => {
+    app.use((_, res, _next) => {
       // Global 404 Catcher
       res.status(404).json({
         status: 'error',
         message: 'Resource not found.',
       });
     });
-    app.use((err, _, res, __) => {
+    app.use((err, _, res, _next) => {
       appLogger.errorX(err, 'global-500-error');
       // Global 500 Catcher
       res.status(500).json({
